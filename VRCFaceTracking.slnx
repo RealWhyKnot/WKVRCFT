@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VRCFaceTracking.App/VRCFaceTracking.App.csproj" />
+    <Project Path="src/VRCFaceTracking.Core/VRCFaceTracking.Core.csproj" />
+    <Project Path="src/VRCFaceTracking.ModuleHost/VRCFaceTracking.ModuleHost.csproj" />
+    <Project Path="src/VRCFaceTracking.SDK/VRCFaceTracking.SDK.csproj" />
+    <Project Path="src/VRCFaceTracking.SDKv2/VRCFaceTracking.SDKv2.csproj" />
+    <Project Path="src/VRCFaceTracking.ModuleHostV2/VRCFaceTracking.ModuleHostV2.csproj" />
+  </Folder>
+  <Folder Name="/modules/">
+    <Project Path="modules/VRCFaceTracking.EmulatedTracking/VRCFaceTracking.EmulatedTracking.csproj" />
+    <Project Path="modules/VRCFaceTracking.AdvancedEmulation/VRCFaceTracking.AdvancedEmulation.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,20 @@
+#!/bin/bash
+# Appends (VERSION) to commit message title if version.txt exists
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# Only modify if this is a regular commit (not merge, squash, etc.)
+if [ -z "$COMMIT_SOURCE" ]; then
+  if [ -f "version.txt" ]; then
+    VERSION=$(cat version.txt | tr -d '[:space:]')
+    if [ -n "$VERSION" ]; then
+      # Read the first line and append version
+      FIRST_LINE=$(head -n 1 "$COMMIT_MSG_FILE")
+      REST=$(tail -n +2 "$COMMIT_MSG_FILE")
+      echo "${FIRST_LINE} (${VERSION})" > "$COMMIT_MSG_FILE"
+      if [ -n "$REST" ]; then
+        echo "$REST" >> "$COMMIT_MSG_FILE"
+      fi
+    fi
+  fi
+fi

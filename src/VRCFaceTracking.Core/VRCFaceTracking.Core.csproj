@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(VftTargetFramework)</TargetFramework>
+    <RootNamespace>VRCFaceTracking.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.2.25163.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0-preview.2.25163.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VRCFaceTracking.SDK\VRCFaceTracking.SDK.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OS)' == 'Windows_NT' And Exists('..\..\fti_osc.dll')">
+    <Content Include="..\..\fti_osc.dll" Link="fti_osc.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

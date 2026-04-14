@@ -1,0 +1,7 @@
+{
+  "sdk": 2,
+  "version": "1.0.0",
+  "name": "Emulated Face Tracking",
+  "description": "Drives facial expressions from microphone audio via NVIDIA Audio2Face-3D NIM",
+  "author": "VRCFaceTracking"
+}

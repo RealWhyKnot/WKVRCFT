@@ -1,0 +1,25 @@
+namespace VRCFaceTracking.Core.Sandboxing.IPC;
+
+public class HeartbeatPacket : IpcPacket
+{
+    public int ProcessId { get; set; }
+
+    public override PacketType GetPacketType() => PacketType.Heartbeat;
+
+    public override byte[] GetBytes()
+    {
+        byte[] packetTypeBytes = BitConverter.GetBytes((uint)GetPacketType());
+        byte[] pidBytes = BitConverter.GetBytes(ProcessId);
+        int packetSize = SIZE_PACKET_MAGIC + SIZE_PACKET_TYPE + 4;
+        byte[] finalDataStream = new byte[packetSize];
+        Buffer.BlockCopy(HANDSHAKE_MAGIC, 0, finalDataStream, 0, SIZE_PACKET_MAGIC);
+        Buffer.BlockCopy(packetTypeBytes, 0, finalDataStream, 4, SIZE_PACKET_TYPE);
+        Buffer.BlockCopy(pidBytes, 0, finalDataStream, 8, 4);
+        return finalDataStream;
+    }
+
+    public override void Decode(in byte[] data)
+    {
+        ProcessId = BitConverter.ToInt32(data, 8);
+    }
+}

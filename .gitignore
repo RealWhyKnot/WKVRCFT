@@ -1,8 +1,12 @@
-# VSCode Files
-.vscode/
+# Reference repos
+reference/
 
-# Visual Studio files
-.vs/
+# Build output
+dist/
+vendor/
+version.txt
+
+# .NET build artifacts
 bin/
 obj/
 *.exe
@@ -11,7 +15,29 @@ obj/
 *.user
 *.suo
 *.cache
+
+# Vue/Node
+ui/node_modules/
+ui/dist/
+src/VRCFaceTracking.App/wwwroot/
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# Logs
 *.log
+
+# OS files
+[Tt]humbs.db
+.DS_Store
+
+# Misc build artifacts
 *.vspscc
 *.vssscc
 *.psess
@@ -20,35 +46,11 @@ obj/
 *.VC.db
 *.csproj.user
 *.bak
-*.cache
 *.sln.docstates
 *.sln.ide-shadows
-[Tt]humbs.db
-*.dbmdl
-*.dbproj*
-*.VC.db
-*.csproj.user
-*.bak
-*.cache
-*.sln.docstates
-*.sln.ide-shadows
-[Tt]humbs.db
 
-# JetBrains Rider files
-.idea/
-*.iml
-*.ipr
-*.iws
-.idea_modules/
+# JetBrains Rider
+*.sln.iml
 
-# Build results
-bin/
-obj/
-
-# Ignore files in the VRCFaceTracking-Next folder
-/VRCFaceTracking/bin/
-/VRCFaceTracking/obj/
-
-# Ignore files in the VRCFaceTracking-Next.Core folder
-/VRCFaceTracking.Core/bin/
-/VRCFaceTracking.Core/obj/
+# WebView data
+WebView2_Data/

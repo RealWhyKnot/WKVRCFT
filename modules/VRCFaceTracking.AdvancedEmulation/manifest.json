@@ -1,0 +1,7 @@
+{
+  "sdk": 2,
+  "version": "1.0.0",
+  "name": "Advanced Emulation",
+  "description": "Behavioural eye emulation: natural blink rhythms, saccades, emotional state from mic activity, and head-droop sleep detection — all without dedicated tracking hardware.",
+  "author": "VRCFaceTracking"
+}
