@@ -7,6 +7,13 @@ public class AppConfig
 {
     public bool DebugMode { get; set; }
     public string Theme { get; set; } = "dark";
+
+    /// <summary>
+    /// URL the host queries for the third-party module registry. Defaults to
+    /// upstream's registry. Override in app_config.json (or via the UI, once exposed)
+    /// to point at a self-hosted registry or a static manifest list.
+    /// </summary>
+    public string RegistryUrl { get; set; } = "https://registry.vrcft.io/modules";
 }
 
 public class OscTargetConfig

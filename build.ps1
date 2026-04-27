@@ -96,6 +96,11 @@ $EmulatedTrackingOut = Join-Path $BuiltInDir "VRCFaceTracking.EmulatedTracking"
 dotnet publish $EmulatedTrackingProject -c Release -o $EmulatedTrackingOut -warnaserror
 Write-Host "  EmulatedTracking built → $EmulatedTrackingOut" -ForegroundColor Gray
 
+$AdvancedEmulationProject = Join-Path $PSScriptRoot "modules/VRCFaceTracking.AdvancedEmulation/VRCFaceTracking.AdvancedEmulation.csproj"
+$AdvancedEmulationOut = Join-Path $BuiltInDir "VRCFaceTracking.AdvancedEmulation"
+dotnet publish $AdvancedEmulationProject -c Release -o $AdvancedEmulationOut -warnaserror
+Write-Host "  AdvancedEmulation built → $AdvancedEmulationOut" -ForegroundColor Gray
+
 # --- Final Packaging ---
 Write-Host "`n--- Packaging ---" -ForegroundColor Cyan
 

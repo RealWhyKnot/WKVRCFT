@@ -8,10 +8,11 @@ namespace VRCFaceTracking.Core.Services;
 
 public class ModuleRegistryService
 {
-    private const string RegistryUrl = "https://registry.vrcft.io/modules";
+    public const string DefaultRegistryUrl = "https://registry.vrcft.io/modules";
     private static readonly TimeSpan CacheTtl = TimeSpan.FromMinutes(10);
 
     private readonly ILogger<ModuleRegistryService> _logger;
+    private readonly SettingsService? _settings;
     private static readonly HttpClient Http = new();
 
     private List<TrackingModuleMetadata>? _cachedRegistry;
@@ -19,9 +20,15 @@ public class ModuleRegistryService
 
     private List<InstallableTrackingModule> _modules = new();
 
-    public ModuleRegistryService(ILoggerFactory loggerFactory)
+    private string RegistryUrl =>
+        string.IsNullOrWhiteSpace(_settings?.AppConfig.RegistryUrl)
+            ? DefaultRegistryUrl
+            : _settings!.AppConfig.RegistryUrl;
+
+    public ModuleRegistryService(ILoggerFactory loggerFactory, SettingsService? settings = null)
     {
         _logger = loggerFactory.CreateLogger<ModuleRegistryService>();
+        _settings = settings;
     }
 
     /// <summary>

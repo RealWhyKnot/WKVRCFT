@@ -181,7 +181,7 @@ class Program
 
         _libManager.Initialize();
 
-        _registryService = new ModuleRegistryService(_loggerFactory!);
+        _registryService = new ModuleRegistryService(_loggerFactory!, _settings);
         _installer = new ModuleInstaller(_loggerFactory!);
 
         // Broadcaster for live tracking data at 30fps — started once the frontend sends its first message
