@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking.AdvancedEmulation.Audio;
 using VRCFaceTracking.AdvancedEmulation.Behaviours;
-using VRCFaceTracking.Core.Params.Expressions;
+using VRCFaceTracking.SDKv2.Expressions;
 using VRCFaceTracking.V2;
 
 namespace VRCFaceTracking.AdvancedEmulation;

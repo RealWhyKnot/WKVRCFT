@@ -6,8 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\VRCFaceTracking.SDKv2\VRCFaceTracking.SDKv2.csproj" />
-    <!-- Core needed for UnifiedExpressions enum indices -->
-    <ProjectReference Include="..\..\src\VRCFaceTracking.Core\VRCFaceTracking.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <!-- Audio capture -->

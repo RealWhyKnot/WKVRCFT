@@ -1,5 +1,5 @@
 using System.Text.Json;
-using VRCFaceTracking.Core.Params.Expressions;
+using VRCFaceTracking.SDKv2.Expressions;
 using Photino.NET;
 
 namespace VRCFaceTracking.App;

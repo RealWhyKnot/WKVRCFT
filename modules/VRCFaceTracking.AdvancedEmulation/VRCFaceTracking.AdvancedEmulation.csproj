@@ -6,7 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\VRCFaceTracking.SDKv2\VRCFaceTracking.SDKv2.csproj" />
-    <ProjectReference Include="..\..\src\VRCFaceTracking.Core\VRCFaceTracking.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />

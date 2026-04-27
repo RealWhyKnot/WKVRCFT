@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VRCFaceTracking.SDK\VRCFaceTracking.SDK.csproj" />
+    <ProjectReference Include="..\VRCFaceTracking.SDKv2\VRCFaceTracking.SDKv2.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(OS)' == 'Windows_NT' And Exists('..\..\fti_osc.dll')">
     <Content Include="..\..\fti_osc.dll" Link="fti_osc.dll">

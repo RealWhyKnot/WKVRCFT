@@ -9,8 +9,8 @@ using Photino.NET;
 using VRCFaceTracking.Core.Library;
 using VRCFaceTracking.Core.Models;
 using VRCFaceTracking.Core.Params.Data;
-using VRCFaceTracking.Core.Params.Expressions;
 using VRCFaceTracking.Core.Services;
+using VRCFaceTracking.SDKv2.Expressions;
 
 namespace VRCFaceTracking.App;
 

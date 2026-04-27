@@ -1,5 +1,5 @@
-using VRCFaceTracking.Core.Params.Expressions;
 using VRCFaceTracking.Core.Sandboxing.V2;
+using VRCFaceTracking.SDKv2.Expressions;
 using VRCFaceTracking.V2;
 
 namespace VRCFaceTracking.ModuleHostV2;
