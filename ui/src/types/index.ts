@@ -17,6 +17,7 @@ export interface ModuleInfo {
   crashCount: number
   retryCount: number
   lastMessage?: string
+  recentMessages?: string[]
   isBuiltIn?: boolean
   enabled?: boolean
   hasConfig?: boolean
@@ -100,5 +101,6 @@ export interface RegistryModule {
   usesExpression: boolean
   tags?: string[]
   pageUrl?: string
+  usageInstructions?: string
   iconUrl?: string
 }

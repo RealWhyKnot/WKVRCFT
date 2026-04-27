@@ -730,10 +730,17 @@ class Program
         crashCount = m.CrashCount,
         retryCount = m.RetryCount,
         lastMessage = m.LastMessage,
+        recentMessages = SnapshotRecentMessages(m),
         isBuiltIn = m.IsBuiltIn,
         enabled = m.Enabled,
         hasConfig = m.ConfigSchemaJson != null
     };
+
+    // Snapshot the ring buffer under its lock so we don't race with appends.
+    static List<string> SnapshotRecentMessages(ModuleRuntimeInfo m)
+    {
+        lock (m.RecentMessages) return m.RecentMessages.ToList();
+    }
 
     static object MapInstallableModule(InstallableTrackingModule m) => new
     {

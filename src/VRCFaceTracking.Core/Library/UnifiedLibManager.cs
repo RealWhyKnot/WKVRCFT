@@ -306,6 +306,7 @@ public class UnifiedLibManager : IDisposable
                 {
                     _logger.LogInformation($"[ModuleHost {process.Id}] {e.Data}");
                     module.LastMessage = e.Data;
+                    AppendRecentMessage(module, e.Data);
                     OnModuleListChanged?.Invoke(GetModuleList());
                 }
             };
@@ -315,6 +316,7 @@ public class UnifiedLibManager : IDisposable
                 {
                     _logger.LogWarning($"[ModuleHost {process.Id}] {e.Data}");
                     module.LastMessage = e.Data;
+                    AppendRecentMessage(module, "[stderr] " + e.Data);
                     OnModuleListChanged?.Invoke(GetModuleList());
                 }
             };
@@ -895,6 +897,16 @@ public class UnifiedLibManager : IDisposable
     }
 
     public List<ModuleRuntimeInfo> GetModuleList() => _modules.Values.ToList();
+
+    private static void AppendRecentMessage(ModuleRuntimeInfo module, string line)
+    {
+        lock (module.RecentMessages)
+        {
+            module.RecentMessages.Add(line);
+            int over = module.RecentMessages.Count - ModuleRuntimeInfo.MaxRecentMessages;
+            if (over > 0) module.RecentMessages.RemoveRange(0, over);
+        }
+    }
 
     /// <summary>
     /// Push a settings update to a running V2 module so it can react without a restart.

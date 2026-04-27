@@ -8,6 +8,11 @@ const store = useAppStore()
 const searchQuery  = ref('')
 const showRegistry = ref(false)
 const showConfigFor = ref<string | null>(null)
+const showLogFor = ref<string | null>(null)
+
+function toggleLog(moduleId: string) {
+  showLogFor.value = showLogFor.value === moduleId ? null : moduleId
+}
 
 onMounted(() => store.getModules())
 
@@ -150,11 +155,25 @@ function installState(m: typeof store.registryModules[0]) {
               <Settings2 :size="14" />
             </button>
           </div>
-          <!-- Last message for regular modules -->
+          <!-- Last message for regular modules (click to expand recent log) -->
           <div v-if="mod.lastMessage"
-               class="mt-3 px-3 py-2 rounded-xl text-[10px] font-mono break-words"
-               style="background:rgba(255,255,255,0.02); color:rgba(255,255,255,0.3)">
-            {{ mod.lastMessage }}
+               class="mt-3 rounded-xl overflow-hidden"
+               style="background:rgba(255,255,255,0.02)">
+            <button @click="toggleLog(mod.id)"
+                    class="w-full px-3 py-2 flex items-center justify-between text-left text-[10px] font-mono break-words"
+                    style="color:rgba(255,255,255,0.3)"
+                    :title="(mod.recentMessages && mod.recentMessages.length > 1) ? 'Click to expand log' : ''">
+              <span class="flex-1 break-words">{{ mod.lastMessage }}</span>
+              <span v-if="mod.recentMessages && mod.recentMessages.length > 1"
+                    class="ml-2 shrink-0 text-[9px]" style="color:rgba(255,255,255,0.25)">
+                {{ showLogFor === mod.id ? '▴' : `+${mod.recentMessages.length - 1}` }}
+              </span>
+            </button>
+            <div v-if="showLogFor === mod.id && mod.recentMessages && mod.recentMessages.length > 0"
+                 class="px-3 py-2 border-t text-[10px] font-mono space-y-0.5 max-h-48 overflow-y-auto"
+                 style="border-color:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4)">
+              <div v-for="(line, i) in mod.recentMessages" :key="i" class="break-words">{{ line }}</div>
+            </div>
           </div>
 
           <!-- Expandable config panel -->
@@ -273,11 +292,25 @@ function installState(m: typeof store.registryModules[0]) {
             </button>
           </div>
 
-          <!-- Last message when enabled -->
+          <!-- Last message when enabled (click to expand recent log) -->
           <div v-if="mod.enabled !== false && mod.lastMessage"
-               class="mt-3 px-3 py-2 rounded-xl text-[10px] font-mono break-words"
-               style="background:rgba(255,255,255,0.02); color:rgba(255,255,255,0.3)">
-            {{ mod.lastMessage }}
+               class="mt-3 rounded-xl overflow-hidden"
+               style="background:rgba(255,255,255,0.02)">
+            <button @click="toggleLog(mod.id)"
+                    class="w-full px-3 py-2 flex items-center justify-between text-left text-[10px] font-mono break-words"
+                    style="color:rgba(255,255,255,0.3)"
+                    :title="(mod.recentMessages && mod.recentMessages.length > 1) ? 'Click to expand log' : ''">
+              <span class="flex-1 break-words">{{ mod.lastMessage }}</span>
+              <span v-if="mod.recentMessages && mod.recentMessages.length > 1"
+                    class="ml-2 shrink-0 text-[9px]" style="color:rgba(255,255,255,0.25)">
+                {{ showLogFor === mod.id ? '▴' : `+${mod.recentMessages.length - 1}` }}
+              </span>
+            </button>
+            <div v-if="showLogFor === mod.id && mod.recentMessages && mod.recentMessages.length > 0"
+                 class="px-3 py-2 border-t text-[10px] font-mono space-y-0.5 max-h-48 overflow-y-auto"
+                 style="border-color:rgba(255,255,255,0.04); color:rgba(255,255,255,0.4)">
+              <div v-for="(line, i) in mod.recentMessages" :key="i" class="break-words">{{ line }}</div>
+            </div>
           </div>
 
           <!-- Disabled description -->

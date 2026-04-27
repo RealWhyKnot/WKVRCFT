@@ -17,6 +17,17 @@ public class ModuleRuntimeInfo
     public int CrashCount { get; set; }
     public int RetryCount { get; set; }
     public string LastMessage { get; set; } = "";
+
+    /// <summary>
+    /// Ring buffer of the last <see cref="MaxRecentMessages"/> stdout/stderr lines from
+    /// the module's host process. Surfaced in the UI as a click-to-expand crash log so
+    /// users can see *why* a module entered <see cref="ModuleState.InitFailed"/> instead
+    /// of just the most recent line. Append-only; trimmed to the cap on every write.
+    /// Holds plain text (one line per entry); levels aren't tracked here — stderr lines
+    /// are interleaved with stdout in arrival order.
+    /// </summary>
+    public List<string> RecentMessages { get; set; } = new();
+    public const int MaxRecentMessages = 50;
     public bool IsBuiltIn { get; set; }
     public bool Enabled { get; set; } = true;
     // V2 modules register a ConfigSchema during InitializeAsync; stored here as raw JSON
