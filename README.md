@@ -1,6 +1,13 @@
-# 👀 VRCFaceTracking
+# 👀 WKVRCFT
 
-Provides eye tracking and lip tracking in VRChat by providing a bridge between your tracking hardware and VRChat's OSC server.
+A friendly fork of VRCFaceTracking — bridges face/eye-tracking hardware to VRChat over OSC, with a Photino+Vue host and hot-pluggable v2 module SDK.
+
+## Credits
+
+This project is a fork of [VRCFaceTracking](https://github.com/benaclejames/VRCFaceTracking) by [benaclejames](https://github.com/benaclejames). The original tool is Apache-2.0–licensed; the same license carries through here. We've kept the upstream remote configured so improvements there can be pulled in over time.
+
+Many thanks to the VRCFaceTracking community and contributors whose work made this fork possible.
+
 ## [Get started here!](https://docs.vrcft.io/docs/intro/getting-started)
 
 [![Discord](https://discord.com/api/guilds/849300336128032789/widget.png)](https://discord.com/invite/vrcft)
