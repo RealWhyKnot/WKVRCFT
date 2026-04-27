@@ -453,8 +453,8 @@ class Program
 
             if (ok)
             {
-                // Write manifest so version is tracked across restarts
-                ModuleRegistryService.WriteManifest(packageId, module.Metadata.Version);
+                // Write manifest so version + page URL + usage instructions survive restarts
+                ModuleRegistryService.WriteManifest(packageId, module.Metadata);
                 SendMessage("INSTALL_RESULT", new { packageId, success = true });
 
                 // Notify the lib manager to pick up the new module
@@ -743,6 +743,7 @@ class Program
         usesExpression = m.Metadata.UsesExpression,
         tags = m.Metadata.Tags,
         pageUrl = m.Metadata.PageUrl,
+        usageInstructions = m.Metadata.UsageInstructions,
         iconUrl = m.Metadata.IconUrl
     };
 }

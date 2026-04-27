@@ -42,6 +42,11 @@ public class TrackingModuleMetadata
     [JsonPropertyName("ModulePageUrl")]
     public string PageUrl { get; set; } = "";
 
+    // API field: "UsageInstructions" — setup hint shown to users (e.g. "Install Driver X 2.0+").
+    // Optional. Carried through from registry payload to the locally-written manifest.json.
+    [JsonPropertyName("UsageInstructions")]
+    public string UsageInstructions { get; set; } = "";
+
     // Not returned by API — kept for local manifest compat
     [JsonPropertyName("Tags")]
     public List<string> Tags { get; set; } = new();

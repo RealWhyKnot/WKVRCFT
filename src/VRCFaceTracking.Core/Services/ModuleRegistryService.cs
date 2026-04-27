@@ -155,16 +155,44 @@ public class ModuleRegistryService
     }
 
     /// <summary>
-    /// Writes a manifest.json after successful install so version tracking works across restarts.
+    /// Writes a manifest.json after successful install. Captures the registry metadata so the
+    /// host can show the user the page URL, usage instructions, and version across restarts
+    /// without having to round-trip the registry again.
     /// </summary>
-    public static void WriteManifest(string packageId, string version)
+    public static void WriteManifest(string packageId, TrackingModuleMetadata metadata)
     {
         var manifestPath = Path.Combine(UnifiedLibManager.ModulesDir, packageId, "manifest.json");
         try
         {
-            var json = JsonSerializer.Serialize(new { version });
-            File.WriteAllText(manifestPath, json);
+            var payload = new
+            {
+                sdk = 2,
+                packageId,
+                name = metadata.DisplayName,
+                version = metadata.Version,
+                description = metadata.Description,
+                author = metadata.Author,
+                downloadUrl = metadata.DownloadUrl,
+                pageUrl = metadata.PageUrl,
+                usageInstructions = metadata.UsageInstructions,
+                dllFileName = metadata.DllFileName,
+                md5Hash = metadata.Md5Hash,
+                tags = metadata.Tags,
+                usesEye = metadata.UsesEye,
+                usesExpression = metadata.UsesExpression,
+                iconUrl = metadata.IconUrl
+            };
+            var opts = new JsonSerializerOptions { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
+            File.WriteAllText(manifestPath, JsonSerializer.Serialize(payload, opts));
         }
         catch { /* non-fatal */ }
     }
+
+    /// <summary>
+    /// Legacy thin overload — preserved for callers that only know the version.
+    /// New callers should pass the full metadata so the manifest survives restart with
+    /// page URL, usage instructions, etc. intact.
+    /// </summary>
+    public static void WriteManifest(string packageId, string version)
+        => WriteManifest(packageId, new TrackingModuleMetadata { PackageId = packageId, Version = version });
 }

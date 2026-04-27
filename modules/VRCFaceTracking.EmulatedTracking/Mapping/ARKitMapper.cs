@@ -4,8 +4,9 @@ using VRCFaceTracking.V2;
 namespace VRCFaceTracking.EmulatedTracking.Mapping;
 
 /// <summary>
-/// Maps the 52 ARKit blendshape outputs from Audio2Face-3D to UnifiedExpressions indices.
-/// ARKit index ordering follows Apple's standard face AR blendshape spec.
+/// Maps the 52 ARKit blendshape outputs from SignalProcessingBackend (DSP-derived)
+/// to UnifiedExpressions indices. ARKit index ordering follows Apple's standard
+/// face AR blendshape spec.
 /// </summary>
 public static class ARKitMapper
 {
