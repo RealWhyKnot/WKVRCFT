@@ -52,6 +52,26 @@ public class V2ModuleSettings : IModuleSettings
         _dirty = true;
     }
 
+    /// <summary>
+    /// Apply a host-pushed settings dictionary. Returns the keys that actually changed
+    /// (compared by JSON equality); keys absent from the new dict are left alone.
+    /// Doesn't mark the store dirty — the host has already persisted the values.
+    /// </summary>
+    public IReadOnlyList<string> ApplyFromHost(Dictionary<string, JsonElement> incoming)
+    {
+        var changed = new List<string>();
+        foreach (var (k, v) in incoming)
+        {
+            if (!_data.TryGetValue(k, out var existing) ||
+                !JsonElement.DeepEquals(existing, v))
+            {
+                _data[k] = v.Clone();
+                changed.Add(k);
+            }
+        }
+        return changed;
+    }
+
     public async Task SaveAsync()
     {
         if (!_dirty) return;

@@ -84,6 +84,21 @@ class Program
                         await pipe.SendShutdownAckAsync(cts.Token);
                         cts.Cancel();
                         break;
+
+                    case V2MessageType.Settings:
+                        if (msg.Payload is { } settingsJson)
+                        {
+                            try
+                            {
+                                var dict = System.Text.Json.JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement>>(settingsJson);
+                                if (dict != null) context.ApplyHostSettings(dict);
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.Error.WriteLine($"Settings push parse error: {ex.Message}");
+                            }
+                        }
+                        break;
                 }
             }
             catch (Exception ex)

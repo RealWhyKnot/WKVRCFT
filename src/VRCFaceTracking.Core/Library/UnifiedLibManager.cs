@@ -896,6 +896,23 @@ public class UnifiedLibManager : IDisposable
 
     public List<ModuleRuntimeInfo> GetModuleList() => _modules.Values.ToList();
 
+    /// <summary>
+    /// Push a settings update to a running V2 module so it can react without a restart.
+    /// No-op for v1 modules or for v2 modules whose pipe is not currently connected.
+    /// </summary>
+    public void PushSettingsToV2Module(string moduleId, string settingsJson)
+    {
+        if (!_v2Pipes.TryGetValue(moduleId, out var pipe)) return;
+        try
+        {
+            _ = pipe.SendAsync(new V2Message(V2MessageType.Settings, settingsJson), CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug($"PushSettings to V2 module '{moduleId}' failed: {ex.Message}");
+        }
+    }
+
     public void Shutdown()
     {
         _cts.Cancel();

@@ -535,6 +535,12 @@ class Program
         {
             var json = JsonSerializer.Serialize(valuesEl, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(settingsPath, json);
+
+            // Push the new values to the running V2 module so it can rebind without a restart.
+            // The module's IModuleContext.OnSettingChanged event fires for each changed key.
+            // No-op for v1 modules or modules whose pipe isn't currently connected.
+            _libManager?.PushSettingsToV2Module(moduleId, JsonSerializer.Serialize(valuesEl));
+
             SendMessage("MODULE_CONFIG_SAVED", new { moduleId, success = true });
             LogService.AddEntry(new LogEntry
             {

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using VRCFaceTracking.Core.Sandboxing.V2;
 using VRCFaceTracking.V2;
@@ -18,8 +19,13 @@ public class V2ModuleContext : IModuleContext
     public IModuleSettings Settings { get; }
     public ITrackingDataWriter TrackingData { get; }
 
+    public event Action<string, object?>? OnSettingChanged;
+
     // Expose the writer so Program.cs can call FlushAsync after UpdateAsync
     internal V2TrackingDataWriter Writer => (V2TrackingDataWriter)TrackingData;
+
+    // Settings is exposed as the interface; keep a typed handle for host-pushed updates.
+    internal V2ModuleSettings TypedSettings => (V2ModuleSettings)Settings;
 
     public V2ModuleContext(V2PipeClient pipe, string moduleDirPath, CancellationToken ct)
     {
@@ -42,6 +48,30 @@ public class V2ModuleContext : IModuleContext
     {
         _ = _pipe.SendAsync(
             new V2Message(V2MessageType.ConfigSchema, System.Text.Json.JsonSerializer.Serialize(schema)), _ct);
+    }
+
+    /// <summary>
+    /// Called by the module-host loop when the host pushes a Settings message.
+    /// Updates the settings store and raises <see cref="OnSettingChanged"/> for each
+    /// key whose JSON-serialised value actually changed. Each handler runs on the
+    /// caller (read-loop) thread; exceptions are swallowed so a buggy module can't
+    /// take down the host process.
+    /// </summary>
+    internal void ApplyHostSettings(System.Collections.Generic.Dictionary<string, System.Text.Json.JsonElement> incoming)
+    {
+        var changed = TypedSettings.ApplyFromHost(incoming);
+        var handler = OnSettingChanged;
+        if (handler == null) return;
+
+        foreach (var key in changed)
+        {
+            object? boxed = null;
+            if (incoming.TryGetValue(key, out var el))
+            {
+                try { boxed = el.Deserialize<object?>(); } catch { boxed = null; }
+            }
+            try { handler(key, boxed); } catch { /* don't let a buggy handler kill us */ }
+        }
     }
 }
 
