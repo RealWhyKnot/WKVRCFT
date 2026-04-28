@@ -121,7 +121,7 @@ public class ModuleInstaller
                     module.ErrorMessage = "No DLL found in downloaded archive";
                     return false;
                 }
-                module.InstallPath = dlls[0];
+                module.InstallPath = PickPrimaryDll(dlls, meta);
             }
             else
             {
@@ -185,6 +185,65 @@ public class ModuleInstaller
             _logger.LogError($"Failed to uninstall {module.Metadata.DisplayName}: {ex.Message}");
             return false;
         }
+    }
+
+    /// <summary>
+    /// Pick the most likely "primary" DLL out of an extracted archive.
+    /// Priority:
+    ///   1. Exact match on <c>meta.DllFileName</c> if the registry specified one.
+    ///   2. DLL whose filename has the smallest Levenshtein distance to the packageId
+    ///      or display name (so a multi-DLL archive that includes dependency assemblies
+    ///      still picks the right one).
+    ///   3. First DLL found, as a last resort.
+    /// </summary>
+    private static string PickPrimaryDll(string[] dlls, TrackingModuleMetadata meta)
+    {
+        if (dlls.Length == 1) return dlls[0];
+
+        if (!string.IsNullOrEmpty(meta.DllFileName))
+        {
+            var exact = dlls.FirstOrDefault(d =>
+                string.Equals(Path.GetFileName(d), meta.DllFileName, StringComparison.OrdinalIgnoreCase));
+            if (exact != null) return exact;
+        }
+
+        var keys = new List<string>();
+        if (!string.IsNullOrEmpty(meta.PackageId))   keys.Add(meta.PackageId.ToLowerInvariant());
+        if (!string.IsNullOrEmpty(meta.DisplayName)) keys.Add(meta.DisplayName.Replace(" ", "").ToLowerInvariant());
+        if (keys.Count == 0) return dlls[0];
+
+        return dlls
+            .Select(d => (Path: d,
+                          Score: keys.Min(k => LevenshteinDistance(
+                              Path.GetFileNameWithoutExtension(d).ToLowerInvariant(), k))))
+            .OrderBy(x => x.Score)
+            .First().Path;
+    }
+
+    /// <summary>
+    /// Standard iterative-DP Levenshtein. Tiny by design — only used to pick
+    /// among a handful of DLLs in a freshly-extracted archive.
+    /// </summary>
+    private static int LevenshteinDistance(string a, string b)
+    {
+        if (string.IsNullOrEmpty(a)) return b?.Length ?? 0;
+        if (string.IsNullOrEmpty(b)) return a.Length;
+
+        var dp = new int[a.Length + 1, b.Length + 1];
+        for (int i = 0; i <= a.Length; i++) dp[i, 0] = i;
+        for (int j = 0; j <= b.Length; j++) dp[0, j] = j;
+
+        for (int i = 1; i <= a.Length; i++)
+        {
+            for (int j = 1; j <= b.Length; j++)
+            {
+                int cost = a[i - 1] == b[j - 1] ? 0 : 1;
+                dp[i, j] = Math.Min(
+                    Math.Min(dp[i - 1, j] + 1, dp[i, j - 1] + 1),
+                    dp[i - 1, j - 1] + cost);
+            }
+        }
+        return dp[a.Length, b.Length];
     }
 
     /// <summary>

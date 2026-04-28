@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,9 +20,42 @@ public class AppConfig
 
 public class OscTargetConfig
 {
+    [Required]
     public string Ip { get; set; } = "127.0.0.1";
+
+    [Range(1, 65535)]
     public int SendPort { get; set; } = 9000;
+
+    [Range(1, 65535)]
     public int RecvPort { get; set; } = 9001;
+
+    /// <summary>True iff every field is valid. Cheap to call from the IPC handler before persisting.</summary>
+    public bool IsValid(out string? error)
+    {
+        if (string.IsNullOrWhiteSpace(Ip))
+        {
+            error = "OSC IP must not be empty.";
+            return false;
+        }
+        // Accept any string that parses as an IPAddress, plus the literal "localhost".
+        if (!string.Equals(Ip, "localhost", StringComparison.OrdinalIgnoreCase) && !IPAddress.TryParse(Ip, out _))
+        {
+            error = $"OSC IP '{Ip}' is not a valid IP address.";
+            return false;
+        }
+        if (SendPort is < 1 or > 65535)
+        {
+            error = $"OSC SendPort {SendPort} must be between 1 and 65535.";
+            return false;
+        }
+        if (RecvPort is < 1 or > 65535)
+        {
+            error = $"OSC RecvPort {RecvPort} must be between 1 and 65535.";
+            return false;
+        }
+        error = null;
+        return true;
+    }
 }
 
 public class ModuleConfig

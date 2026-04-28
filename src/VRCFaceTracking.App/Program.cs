@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Microsoft.Extensions.Logging;
 using Photino.NET;
 using VRCFaceTracking.Core.Library;
+using VRCFaceTracking.Core.mDNS;
 using VRCFaceTracking.Core.Models;
 using VRCFaceTracking.Core.Params.Data;
 using VRCFaceTracking.Core.Services;
@@ -24,6 +25,7 @@ class Program
     private static ModuleRegistryService? _registryService;
     private static ModuleInstaller? _installer;
     private static OscSendService? _oscSendService;
+    private static MulticastDnsService? _mdnsService;
     private static TrackingDataBroadcaster? _broadcaster;
     private static CancellationTokenSource _appCts = new();
     private static bool _isWindowReady = false;
@@ -65,21 +67,51 @@ class Program
         {
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
             {
-                string crashLog = Path.Combine(baseDir, "crash.log");
-                File.WriteAllText(crashLog, "FATAL: " + e.ExceptionObject.ToString());
+                WriteCrashFile(baseDir, "crash", "FATAL", e.ExceptionObject?.ToString() ?? "<no exception object>");
             };
 
             RunApp(baseDir);
         }
         catch (Exception ex)
         {
-            string crashLog = Path.Combine(baseDir, "startup_crash.log");
-            File.WriteAllText(crashLog, "STARTUP ERROR: " + ex.ToString());
+            WriteCrashFile(baseDir, "startup_crash", "STARTUP ERROR", ex.ToString());
             MessageBox.Show(
-                "Fatal error during startup.\n\nSee startup_crash.log for details.",
+                "Fatal error during startup.\n\nSee startup_crash_*.log next to the executable for details.",
                 "VRCFaceTracking",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error);
+        }
+    }
+
+    static void WriteCrashFile(string baseDir, string prefix, string label, string body)
+    {
+        try
+        {
+            string ts = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+            string path = Path.Combine(baseDir, $"{prefix}_{ts}.log");
+            using var writer = new StreamWriter(path);
+            writer.WriteLine($"=== VRCFaceTracking crash — {label} ===");
+            writer.WriteLine($"Time:    {DateTime.UtcNow:yyyy-MM-ddTHH:mm:ssZ}");
+            writer.WriteLine($"Process: {Environment.ProcessPath} (PID {Environment.ProcessId})");
+            writer.WriteLine($"Active log: {LogService.ActiveLogPath ?? "<not initialized>"}");
+            writer.WriteLine(new string('=', 80));
+            writer.WriteLine(body);
+            writer.WriteLine(new string('=', 80));
+            writer.WriteLine("Recent log history (last 200 entries):");
+            foreach (var entry in LogService.GetHistory().TakeLast(200))
+            {
+                writer.WriteLine($"[{entry.Timestamp:HH:mm:ss.fff}] [{entry.Level}] [{entry.Source}] {entry.Message}");
+                if (!string.IsNullOrEmpty(entry.Exception))
+                {
+                    foreach (var line in entry.Exception.Split('\n'))
+                        writer.WriteLine("    " + line.TrimEnd('\r'));
+                }
+            }
+        }
+        catch
+        {
+            // Last resort: at least drop a flat file so something is recoverable
+            try { File.WriteAllText(Path.Combine(baseDir, $"{prefix}.log"), $"{label}: {body}"); } catch { }
         }
     }
 
@@ -161,6 +193,32 @@ class Program
     {
         var osc = _settings!.OscTarget;
         _oscSendService = new OscSendService(_loggerFactory!, osc.Ip, osc.SendPort);
+
+        // mDNS / OSCQuery: discover VRChat's actual OSC port and re-target.
+        // VRChat 2024+ binds OSC to a random port advertised at _oscjson._tcp.local.
+        // Without this, packets only land if VRChat happens to be on the legacy default port.
+        try
+        {
+            _mdnsService = new MulticastDnsService(_loggerFactory!.CreateLogger<MulticastDnsService>());
+            _mdnsService.OnVrcClientDiscovered += () =>
+            {
+                var ep = _mdnsService?.VrchatClientEndpoint;
+                if (ep == null || _oscSendService == null) return;
+                _oscSendService.UpdateTarget(ep.Address.ToString(), ep.Port);
+            };
+            _mdnsService.SendQuery("_oscjson._tcp.local");
+        }
+        catch (Exception ex)
+        {
+            LogService.AddEntry(new LogEntry
+            {
+                Timestamp = DateTime.UtcNow,
+                Level = "Warning",
+                Source = "App",
+                Message = "mDNS service failed to start; OSC will fall back to default 127.0.0.1:9000",
+                Exception = ex.ToString()
+            });
+        }
 
         // Mutator — Load() auto-discovers all TrackingMutation subclasses via reflection
         var mutator = new UnifiedTrackingMutator(_loggerFactory!);
@@ -253,14 +311,27 @@ class Program
                     if (root.TryGetProperty("data", out var oscData) && _settings != null)
                     {
                         var newOsc = JsonSerializer.Deserialize<OscTargetConfig>(oscData.GetRawText(), _jsonReadOpts);
-                        if (newOsc != null)
+                        if (newOsc == null) break;
+
+                        if (!newOsc.IsValid(out var oscError))
                         {
-                            _settings.OscTarget.Ip = newOsc.Ip;
-                            _settings.OscTarget.SendPort = newOsc.SendPort;
-                            _settings.OscTarget.RecvPort = newOsc.RecvPort;
-                            _settings.SaveOscTarget();
-                            _oscSendService?.UpdateTarget(newOsc.Ip, newOsc.SendPort);
+                            LogService.AddEntry(new LogEntry
+                            {
+                                Timestamp = DateTime.UtcNow,
+                                Level = "Warning",
+                                Source = "App",
+                                Message = $"Rejected invalid OSC config from UI: {oscError}"
+                            });
+                            SendMessage("OSC_CONFIG_SAVED", new { success = false, error = oscError });
+                            break;
                         }
+
+                        _settings.OscTarget.Ip = newOsc.Ip;
+                        _settings.OscTarget.SendPort = newOsc.SendPort;
+                        _settings.OscTarget.RecvPort = newOsc.RecvPort;
+                        _settings.SaveOscTarget();
+                        _oscSendService?.UpdateTarget(newOsc.Ip, newOsc.SendPort);
+                        SendMessage("OSC_CONFIG_SAVED", new { success = true });
                     }
                     break;
 

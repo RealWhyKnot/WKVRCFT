@@ -11,7 +11,7 @@ After install, point an avatar at the [VRCFaceTracking parameter list](https://d
 
 ## Modules
 
-Tracking sources ship as separate DLLs that the host loads at runtime. Two come bundled (microphone-driven emulation, behavioural eye synthesis); the rest live in the [module registry](https://github.com/RealWhyKnot/WKVRCFT/wiki/Registry) or any registry you point the host at.
+Tracking sources ship as separate DLLs that the host loads at runtime. Default install bundles **no** modules — you install the ones you want from the [module registry](https://github.com/RealWhyKnot/WKVRCFT/wiki/Registry) (or point the host at any registry you like). The microphone-driven emulation modules (audio-to-expression, behavioural eye synthesis) live in [WKVRCFT-Emulation](https://github.com/RealWhyKnot/WKVRCFT-Emulation).
 
 Writing a module — the `IModuleContext` API, declarative config schemas, manifest fields, the live-config event — is documented on the [Module Authors](https://github.com/RealWhyKnot/WKVRCFT/wiki/Module-Authors) wiki page.
 

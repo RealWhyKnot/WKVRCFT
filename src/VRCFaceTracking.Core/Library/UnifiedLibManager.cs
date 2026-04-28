@@ -509,6 +509,11 @@ public class UnifiedLibManager : IDisposable
         _logger.LogDebug($"Looking for {exeName} at: {candidate}");
         if (File.Exists(candidate)) return candidate;
 
+        // Final fallback: AppContext.BaseDirectory (host extraction folder for single-file deploys)
+        candidate = Path.Combine(AppContext.BaseDirectory, exeName);
+        _logger.LogDebug($"Looking for {exeName} at: {candidate}");
+        if (File.Exists(candidate)) return candidate;
+
         _logger.LogError($"{exeName} not found in any search path");
         return null;
     }

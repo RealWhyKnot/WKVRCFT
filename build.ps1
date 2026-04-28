@@ -86,20 +86,9 @@ dotnet publish (Join-Path $PSScriptRoot "src/VRCFaceTracking.App/VRCFaceTracking
 dotnet publish (Join-Path $PSScriptRoot "src/VRCFaceTracking.ModuleHost/VRCFaceTracking.ModuleHost.csproj") -c Release -o $BuildDir --self-contained true -r win-x64 -p:PublishSingleFile=true -warnaserror
 dotnet publish (Join-Path $PSScriptRoot "src/VRCFaceTracking.ModuleHostV2/VRCFaceTracking.ModuleHostV2.csproj") -c Release -o $BuildDir --self-contained true -r win-x64 -p:PublishSingleFile=true -warnaserror
 
-# --- Build Built-in Modules ---
-Write-Host "`n--- Building Built-in Modules ---" -ForegroundColor Cyan
-$BuiltInDir = Join-Path $BuildDir "builtin-modules"
-New-Item -ItemType Directory -Path $BuiltInDir -Force | Out-Null
-
-$EmulatedTrackingProject = Join-Path $PSScriptRoot "modules/VRCFaceTracking.EmulatedTracking/VRCFaceTracking.EmulatedTracking.csproj"
-$EmulatedTrackingOut = Join-Path $BuiltInDir "VRCFaceTracking.EmulatedTracking"
-dotnet publish $EmulatedTrackingProject -c Release -o $EmulatedTrackingOut -warnaserror
-Write-Host "  EmulatedTracking built → $EmulatedTrackingOut" -ForegroundColor Gray
-
-$AdvancedEmulationProject = Join-Path $PSScriptRoot "modules/VRCFaceTracking.AdvancedEmulation/VRCFaceTracking.AdvancedEmulation.csproj"
-$AdvancedEmulationOut = Join-Path $BuiltInDir "VRCFaceTracking.AdvancedEmulation"
-dotnet publish $AdvancedEmulationProject -c Release -o $AdvancedEmulationOut -warnaserror
-Write-Host "  AdvancedEmulation built → $AdvancedEmulationOut" -ForegroundColor Gray
+# --- Built-in modules removed ---
+# The Emulation modules were carved out to RealWhyKnot/WKVRCFT-Emulation.
+# Default install ships with no built-ins; users opt in via the in-app module registry.
 
 # --- Final Packaging ---
 Write-Host "`n--- Packaging ---" -ForegroundColor Cyan
